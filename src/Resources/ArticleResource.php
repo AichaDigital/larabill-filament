@@ -1,0 +1,272 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AichaDigital\LarabillFilament\Resources;
+
+use AichaDigital\Larabill\Enums\BillingFrequency;
+use AichaDigital\Larabill\Enums\ItemType;
+use AichaDigital\Larabill\Models\Article;
+use AichaDigital\LarabillFilament\Resources\ArticleResource\Pages;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\DeleteBulkAction;
+use Filament\Actions\EditAction;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
+
+class ArticleResource extends Resource
+{
+    protected static ?string $model = Article::class;
+
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
+
+    protected static ?string $navigationGroup = 'Billing';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('larabill-filament::resources.article.navigation_label');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('larabill-filament::resources.article.model_label');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('larabill-filament::resources.article.plural_model_label');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                Section::make(__('larabill-filament::resources.article.sections.basic_info'))
+                    ->schema([
+                        TextInput::make('code')
+                            ->label(__('larabill-filament::resources.article.fields.code'))
+                            ->required()
+                            ->maxLength(50)
+                            ->unique(ignoreRecord: true),
+
+                        TextInput::make('name')
+                            ->label(__('larabill-filament::resources.article.fields.name'))
+                            ->required()
+                            ->maxLength(255),
+
+                        Select::make('item_type')
+                            ->label(__('larabill-filament::resources.article.fields.item_type'))
+                            ->options(collect(ItemType::cases())->mapWithKeys(
+                                fn (ItemType $type) => [$type->value => $type->label()]
+                            ))
+                            ->required()
+                            ->native(false),
+
+                        TextInput::make('category')
+                            ->label(__('larabill-filament::resources.article.fields.category'))
+                            ->maxLength(100),
+
+                        Textarea::make('description')
+                            ->label(__('larabill-filament::resources.article.fields.description'))
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+
+                Section::make(__('larabill-filament::resources.article.sections.pricing'))
+                    ->schema([
+                        TextInput::make('base_price')
+                            ->label(__('larabill-filament::resources.article.fields.base_price'))
+                            ->required()
+                            ->numeric()
+                            ->prefix('€')
+                            ->step(0.01),
+
+                        TextInput::make('cost_price')
+                            ->label(__('larabill-filament::resources.article.fields.cost_price'))
+                            ->numeric()
+                            ->prefix('€')
+                            ->step(0.01),
+
+                        Select::make('tax_group_id')
+                            ->label(__('larabill-filament::resources.article.fields.tax_group'))
+                            ->relationship('taxGroup', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
+
+                        Select::make('unit_measure_id')
+                            ->label(__('larabill-filament::resources.article.fields.unit_measure'))
+                            ->relationship('unitMeasure', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->native(false),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+
+                Section::make(__('larabill-filament::resources.article.sections.recurring'))
+                    ->schema([
+                        Toggle::make('is_recurring')
+                            ->label(__('larabill-filament::resources.article.fields.is_recurring'))
+                            ->live()
+                            ->default(false),
+
+                        Select::make('billing_frequency')
+                            ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
+                            ->options(collect(BillingFrequency::cases())->mapWithKeys(
+                                fn (BillingFrequency $freq) => [$freq->value => $freq->label()]
+                            ))
+                            ->visible(fn ($get) => $get('is_recurring'))
+                            ->native(false),
+
+                        TextInput::make('billing_interval')
+                            ->label(__('larabill-filament::resources.article.fields.billing_interval'))
+                            ->numeric()
+                            ->default(1)
+                            ->minValue(1)
+                            ->visible(fn ($get) => $get('is_recurring')),
+
+                        TextInput::make('billing_days_in_advance')
+                            ->label(__('larabill-filament::resources.article.fields.billing_days_in_advance'))
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0)
+                            ->visible(fn ($get) => $get('is_recurring')),
+                    ])
+                    ->columns(4)
+                    ->columnSpanFull(),
+
+                Section::make(__('larabill-filament::resources.article.sections.status'))
+                    ->schema([
+                        Toggle::make('is_active')
+                            ->label(__('larabill-filament::resources.article.fields.is_active'))
+                            ->default(true),
+                    ])
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('code')
+                    ->label(__('larabill-filament::resources.article.fields.code'))
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('name')
+                    ->label(__('larabill-filament::resources.article.fields.name'))
+                    ->searchable()
+                    ->sortable()
+                    ->limit(40),
+
+                TextColumn::make('item_type')
+                    ->label(__('larabill-filament::resources.article.fields.item_type'))
+                    ->formatStateUsing(fn (ItemType $state): string => $state->label())
+                    ->badge()
+                    ->sortable(),
+
+                TextColumn::make('category')
+                    ->label(__('larabill-filament::resources.article.fields.category'))
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('base_price')
+                    ->label(__('larabill-filament::resources.article.fields.base_price'))
+                    ->money('EUR')
+                    ->sortable(),
+
+                IconColumn::make('is_recurring')
+                    ->label(__('larabill-filament::resources.article.fields.is_recurring'))
+                    ->boolean()
+                    ->sortable(),
+
+                TextColumn::make('billing_frequency')
+                    ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
+                    ->formatStateUsing(fn (?BillingFrequency $state): string => $state?->label() ?? '-')
+                    ->toggleable(),
+
+                IconColumn::make('is_active')
+                    ->label(__('larabill-filament::resources.article.fields.is_active'))
+                    ->boolean()
+                    ->sortable(),
+
+                TextColumn::make('taxGroup.name')
+                    ->label(__('larabill-filament::resources.article.fields.tax_group'))
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('created_at')
+                    ->label(__('larabill-filament::resources.article.fields.created_at'))
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->defaultSort('name')
+            ->filters([
+                TernaryFilter::make('is_active')
+                    ->label(__('larabill-filament::resources.article.fields.is_active')),
+
+                TernaryFilter::make('is_recurring')
+                    ->label(__('larabill-filament::resources.article.fields.is_recurring')),
+
+                SelectFilter::make('item_type')
+                    ->label(__('larabill-filament::resources.article.fields.item_type'))
+                    ->options(collect(ItemType::cases())->mapWithKeys(
+                        fn (ItemType $type) => [$type->value => $type->label()]
+                    )),
+
+                SelectFilter::make('billing_frequency')
+                    ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
+                    ->options(collect(BillingFrequency::cases())->mapWithKeys(
+                        fn (BillingFrequency $freq) => [$freq->value => $freq->label()]
+                    )),
+
+                SelectFilter::make('tax_group_id')
+                    ->label(__('larabill-filament::resources.article.fields.tax_group'))
+                    ->relationship('taxGroup', 'name'),
+            ])
+            ->recordActions([
+                EditAction::make(),
+                DeleteAction::make(),
+            ])
+            ->toolbarActions([
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListArticles::route('/'),
+            'create' => Pages\CreateArticle::route('/create'),
+            'edit' => Pages\EditArticle::route('/{record}/edit'),
+        ];
+    }
+}
