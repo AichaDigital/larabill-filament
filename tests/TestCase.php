@@ -2,9 +2,9 @@
 
 namespace AichaDigital\LarabillFilament\Tests;
 
+use AichaDigital\LarabillFilament\LarabillFilamentServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use AichaDigital\LarabillFilament\LarabillFilamentServiceProvider;
 
 class TestCase extends Orchestra
 {
