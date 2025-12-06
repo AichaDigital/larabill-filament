@@ -30,3 +30,8 @@ phpstan.neon
 testbench.yaml
 /docs
 /coverage
+
+# AI Tooling
+.claude/
+CLAUDE.md
+.cursor/
