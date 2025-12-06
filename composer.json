@@ -1,22 +1,24 @@
 {
-    "name": ":vendor_slug/:package_slug",
-    "description": ":package_description",
+    "name": "aichadigital/larabill-filament",
+    "description": "Filament admin panel for Larabill billing package",
     "keywords": [
-        ":vendor_name",
+        "Aicha Digital",
         "laravel",
-        ":package_slug"
+        "larabill-filament"
     ],
-    "homepage": "https://github.com/:vendor_slug/:package_slug",
+    "homepage": "https://github.com/aichadigital/larabill-filament",
     "license": "MIT",
     "authors": [
         {
-            "name": ":author_name",
-            "email": "author@domain.com",
+            "name": "Abdelkarim Mateos Sanchez",
+            "email": "abdelkarim.mateos@castris.com",
             "role": "Developer"
         }
     ],
     "require": {
         "php": "^8.4",
+        "aichadigital/larabill": "^0.4",
+        "filament/filament": "^4.0",
         "spatie/laravel-package-tools": "^1.16",
         "illuminate/contracts": "^11.0||^12.0"
     },
@@ -35,13 +37,13 @@
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\Skeleton\\": "src/",
-            "VendorName\\Skeleton\\Database\\Factories\\": "database/factories/"
+            "AichaDigital\\LarabillFilament\\": "src/",
+            "AichaDigital\\LarabillFilament\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\Skeleton\\Tests\\": "tests/",
+            "AichaDigital\\LarabillFilament\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/"
         }
     },
@@ -63,10 +65,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\Skeleton\\SkeletonServiceProvider"
+                "AichaDigital\\LarabillFilament\\LarabillFilamentServiceProvider"
             ],
             "aliases": {
-                "Skeleton": "VendorName\\Skeleton\\Facades\\Skeleton"
+                "LarabillFilament": "AichaDigital\\LarabillFilament\\Facades\\LarabillFilament"
             }
         }
     },
