@@ -149,11 +149,6 @@ class CustomerResource extends Resource
                     ->boolean()
                     ->sortable(),
 
-                TextColumn::make('currentTaxProfile.tax_code')
-                    ->label(__('larabill-filament::resources.customer.fields.tax_id'))
-                    ->searchable()
-                    ->toggleable(),
-
                 TextColumn::make('created_at')
                     ->label(__('larabill-filament::resources.customer.fields.created_at'))
                     ->dateTime()

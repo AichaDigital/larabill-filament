@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace AichaDigital\LarabillFilament;
 
-use AichaDigital\LarabillFilament\Commands\LarabillFilamentCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
