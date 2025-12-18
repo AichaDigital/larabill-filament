@@ -2,9 +2,11 @@
 
 namespace AichaDigital\LarabillFilament\Tests;
 
+use AichaDigital\Larabill\LarabillServiceProvider;
 use AichaDigital\LarabillFilament\LarabillFilamentServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
+use Spatie\Translatable\TranslatableServiceProvider;
 
 class TestCase extends Orchestra
 {
@@ -20,6 +22,8 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app)
     {
         return [
+            TranslatableServiceProvider::class,
+            LarabillServiceProvider::class,
             LarabillFilamentServiceProvider::class,
         ];
     }

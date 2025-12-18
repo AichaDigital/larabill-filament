@@ -43,6 +43,7 @@ return [
             'name' => 'Nombre',
             'description' => 'Descripción',
             'item_type' => 'Tipo',
+            'item_type_helper' => 'Bien: producto físico. Servicio: prestación de servicios.',
             'category' => 'Categoría',
             'base_price' => 'Precio Base',
             'cost_price' => 'Precio de Coste',

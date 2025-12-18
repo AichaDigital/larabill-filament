@@ -43,6 +43,7 @@ return [
             'name' => 'Name',
             'description' => 'Description',
             'item_type' => 'Type',
+            'item_type_helper' => 'Good: physical product. Service: service provision.',
             'category' => 'Category',
             'base_price' => 'Base Price',
             'cost_price' => 'Cost Price',

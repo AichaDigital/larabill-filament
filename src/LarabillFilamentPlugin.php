@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace AichaDigital\LarabillFilament;
 
 use AichaDigital\LarabillFilament\Resources\ArticleResource;
-use AichaDigital\LarabillFilament\Resources\CustomerResource;
+use AichaDigital\LarabillFilament\Widgets\FiscalIntegrityBanner;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 
+/**
+ * LarabillFilamentPlugin
+ *
+ * ADR-003: CustomerResource removed - Customer unified into User with billable_user_id
+ */
 class LarabillFilamentPlugin implements Plugin
 {
-    protected bool $hasCustomerResource = true;
-
     protected bool $hasArticleResource = true;
+
+    protected bool $hasFiscalIntegrityBanner = true;
 
     public static function make(): static
     {
@@ -36,33 +41,23 @@ class LarabillFilamentPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $resources = [];
-
-        if ($this->hasCustomerResource()) {
-            $resources[] = CustomerResource::class;
-        }
+        $widgets = [];
 
         if ($this->hasArticleResource()) {
             $resources[] = ArticleResource::class;
         }
 
+        if ($this->hasFiscalIntegrityBanner()) {
+            $widgets[] = FiscalIntegrityBanner::class;
+        }
+
         $panel->resources($resources);
+        $panel->widgets($widgets);
     }
 
     public function boot(Panel $panel): void
     {
         //
-    }
-
-    public function customerResource(bool $condition = true): static
-    {
-        $this->hasCustomerResource = $condition;
-
-        return $this;
-    }
-
-    public function hasCustomerResource(): bool
-    {
-        return $this->hasCustomerResource;
     }
 
     public function articleResource(bool $condition = true): static
@@ -75,5 +70,17 @@ class LarabillFilamentPlugin implements Plugin
     public function hasArticleResource(): bool
     {
         return $this->hasArticleResource;
+    }
+
+    public function fiscalIntegrityBanner(bool $condition = true): static
+    {
+        $this->hasFiscalIntegrityBanner = $condition;
+
+        return $this;
+    }
+
+    public function hasFiscalIntegrityBanner(): bool
+    {
+        return $this->hasFiscalIntegrityBanner;
     }
 }

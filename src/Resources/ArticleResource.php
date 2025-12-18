@@ -69,6 +69,7 @@ class ArticleResource extends Resource
 
                         Select::make('item_type')
                             ->label(__('larabill-filament::resources.article.fields.item_type'))
+                            ->helperText(__('larabill-filament::resources.article.fields.item_type_helper'))
                             ->options(collect(ItemType::cases())->mapWithKeys(
                                 fn (ItemType $type) => [$type->value => $type->label()]
                             ))
