@@ -17,8 +17,8 @@
     ],
     "repositories": [
         {
-            "type": "path",
-            "url": "../larabill"
+            "type": "vcs",
+            "url": "https://github.com/AichaDigital/larabill.git"
         }
     ],
     "require": {
