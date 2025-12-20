@@ -33,8 +33,8 @@ return [
 
         'sections' => [
             'basic_info' => 'Información Básica',
-            'pricing' => 'Precios',
-            'recurring' => 'Facturación Recurrente',
+            'pricing' => 'Configuración de Precios',
+            'pricing_description' => 'Los precios por frecuencia se gestionan en la pestaña "Precios" después de guardar.',
             'status' => 'Estado',
         ],
 
@@ -45,16 +45,27 @@ return [
             'item_type' => 'Tipo',
             'item_type_helper' => 'Bien: producto físico. Servicio: prestación de servicios.',
             'category' => 'Categoría',
-            'base_price' => 'Precio Base',
             'cost_price' => 'Precio de Coste',
+            'cost_price_helper' => 'Coste interno (no visible al cliente)',
             'tax_group' => 'Grupo de Impuestos',
             'unit_measure' => 'Unidad de Medida',
-            'is_recurring' => 'Recurrente',
-            'billing_frequency' => 'Frecuencia de Facturación',
-            'billing_interval' => 'Intervalo de Facturación',
-            'billing_days_in_advance' => 'Días de Antelación',
+            'prices_count' => 'Precios',
             'is_active' => 'Activo',
             'created_at' => 'Creado',
+        ],
+
+        'relations' => [
+            'prices' => [
+                'title' => 'Precios',
+                'fields' => [
+                    'billing_frequency' => 'Frecuencia',
+                    'price' => 'Precio',
+                    'billing_days_in_advance' => 'Días Antelación',
+                    'is_active' => 'Activo',
+                    'valid_from' => 'Válido Desde',
+                    'valid_to' => 'Válido Hasta',
+                ],
+            ],
         ],
     ],
 ];

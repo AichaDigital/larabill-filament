@@ -33,8 +33,8 @@ return [
 
         'sections' => [
             'basic_info' => 'Basic Information',
-            'pricing' => 'Pricing',
-            'recurring' => 'Recurring Billing',
+            'pricing' => 'Pricing Configuration',
+            'pricing_description' => 'Prices by frequency are managed in the "Prices" tab after saving.',
             'status' => 'Status',
         ],
 
@@ -45,16 +45,27 @@ return [
             'item_type' => 'Type',
             'item_type_helper' => 'Good: physical product. Service: service provision.',
             'category' => 'Category',
-            'base_price' => 'Base Price',
             'cost_price' => 'Cost Price',
+            'cost_price_helper' => 'Internal cost (not visible to customer)',
             'tax_group' => 'Tax Group',
             'unit_measure' => 'Unit of Measure',
-            'is_recurring' => 'Recurring',
-            'billing_frequency' => 'Billing Frequency',
-            'billing_interval' => 'Billing Interval',
-            'billing_days_in_advance' => 'Days in Advance',
+            'prices_count' => 'Prices',
             'is_active' => 'Active',
             'created_at' => 'Created At',
+        ],
+
+        'relations' => [
+            'prices' => [
+                'title' => 'Prices',
+                'fields' => [
+                    'billing_frequency' => 'Frequency',
+                    'price' => 'Price',
+                    'billing_days_in_advance' => 'Days in Advance',
+                    'is_active' => 'Active',
+                    'valid_from' => 'Valid From',
+                    'valid_to' => 'Valid Until',
+                ],
+            ],
         ],
     ],
 ];

@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace AichaDigital\LarabillFilament\Resources;
 
-use AichaDigital\Larabill\Enums\BillingFrequency;
 use AichaDigital\Larabill\Enums\ItemType;
 use AichaDigital\Larabill\Models\Article;
 use AichaDigital\LarabillFilament\Resources\ArticleResource\Pages;
+use AichaDigital\LarabillFilament\Resources\ArticleResource\RelationManagers\ArticlePricesRelationManager;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -25,6 +25,12 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 
+/**
+ * ArticleResource
+ *
+ * Manages articles (products/services) in Filament admin panel.
+ * Prices are managed via ArticlePricesRelationManager (one article = multiple prices).
+ */
 class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
@@ -89,16 +95,11 @@ class ArticleResource extends Resource
                     ->columnSpanFull(),
 
                 Section::make(__('larabill-filament::resources.article.sections.pricing'))
+                    ->description(__('larabill-filament::resources.article.sections.pricing_description'))
                     ->schema([
-                        TextInput::make('base_price')
-                            ->label(__('larabill-filament::resources.article.fields.base_price'))
-                            ->required()
-                            ->numeric()
-                            ->prefix('€')
-                            ->step(0.01),
-
                         TextInput::make('cost_price')
                             ->label(__('larabill-filament::resources.article.fields.cost_price'))
+                            ->helperText(__('larabill-filament::resources.article.fields.cost_price_helper'))
                             ->numeric()
                             ->prefix('€')
                             ->step(0.01),
@@ -116,48 +117,12 @@ class ArticleResource extends Resource
                             ->searchable()
                             ->preload()
                             ->native(false),
-                    ])
-                    ->columns(2)
-                    ->columnSpanFull(),
 
-                Section::make(__('larabill-filament::resources.article.sections.recurring'))
-                    ->schema([
-                        Toggle::make('is_recurring')
-                            ->label(__('larabill-filament::resources.article.fields.is_recurring'))
-                            ->live()
-                            ->default(false),
-
-                        Select::make('billing_frequency')
-                            ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
-                            ->options(collect(BillingFrequency::cases())->mapWithKeys(
-                                fn (BillingFrequency $freq) => [$freq->value => $freq->label()]
-                            ))
-                            ->visible(fn ($get) => $get('is_recurring'))
-                            ->native(false),
-
-                        TextInput::make('billing_interval')
-                            ->label(__('larabill-filament::resources.article.fields.billing_interval'))
-                            ->numeric()
-                            ->default(1)
-                            ->minValue(1)
-                            ->visible(fn ($get) => $get('is_recurring')),
-
-                        TextInput::make('billing_days_in_advance')
-                            ->label(__('larabill-filament::resources.article.fields.billing_days_in_advance'))
-                            ->numeric()
-                            ->default(0)
-                            ->minValue(0)
-                            ->visible(fn ($get) => $get('is_recurring')),
-                    ])
-                    ->columns(4)
-                    ->columnSpanFull(),
-
-                Section::make(__('larabill-filament::resources.article.sections.status'))
-                    ->schema([
                         Toggle::make('is_active')
                             ->label(__('larabill-filament::resources.article.fields.is_active'))
                             ->default(true),
                     ])
+                    ->columns(2)
                     ->columnSpanFull(),
             ]);
     }
@@ -187,32 +152,24 @@ class ArticleResource extends Resource
                     ->label(__('larabill-filament::resources.article.fields.category'))
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
+                    ->badge()
+                    ->color('gray'),
 
-                TextColumn::make('base_price')
-                    ->label(__('larabill-filament::resources.article.fields.base_price'))
-                    ->money('EUR')
-                    ->sortable(),
+                TextColumn::make('prices_count')
+                    ->label(__('larabill-filament::resources.article.fields.prices_count'))
+                    ->counts('prices')
+                    ->badge()
+                    ->color('success'),
 
-                IconColumn::make('is_recurring')
-                    ->label(__('larabill-filament::resources.article.fields.is_recurring'))
-                    ->boolean()
-                    ->sortable(),
-
-                TextColumn::make('billing_frequency')
-                    ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
-                    ->formatStateUsing(fn (?BillingFrequency $state): string => $state?->label() ?? '-')
+                TextColumn::make('taxGroup.name')
+                    ->label(__('larabill-filament::resources.article.fields.tax_group'))
+                    ->sortable()
                     ->toggleable(),
 
                 IconColumn::make('is_active')
                     ->label(__('larabill-filament::resources.article.fields.is_active'))
                     ->boolean()
                     ->sortable(),
-
-                TextColumn::make('taxGroup.name')
-                    ->label(__('larabill-filament::resources.article.fields.tax_group'))
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label(__('larabill-filament::resources.article.fields.created_at'))
@@ -225,20 +182,20 @@ class ArticleResource extends Resource
                 TernaryFilter::make('is_active')
                     ->label(__('larabill-filament::resources.article.fields.is_active')),
 
-                TernaryFilter::make('is_recurring')
-                    ->label(__('larabill-filament::resources.article.fields.is_recurring')),
-
                 SelectFilter::make('item_type')
                     ->label(__('larabill-filament::resources.article.fields.item_type'))
                     ->options(collect(ItemType::cases())->mapWithKeys(
                         fn (ItemType $type) => [$type->value => $type->label()]
                     )),
 
-                SelectFilter::make('billing_frequency')
-                    ->label(__('larabill-filament::resources.article.fields.billing_frequency'))
-                    ->options(collect(BillingFrequency::cases())->mapWithKeys(
-                        fn (BillingFrequency $freq) => [$freq->value => $freq->label()]
-                    )),
+                SelectFilter::make('category')
+                    ->label(__('larabill-filament::resources.article.fields.category'))
+                    ->options(fn () => Article::query()
+                        ->whereNotNull('category')
+                        ->distinct()
+                        ->pluck('category', 'category')
+                        ->toArray()
+                    ),
 
                 SelectFilter::make('tax_group_id')
                     ->label(__('larabill-filament::resources.article.fields.tax_group'))
@@ -258,7 +215,7 @@ class ArticleResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            ArticlePricesRelationManager::class,
         ];
     }
 
