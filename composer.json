@@ -23,7 +23,7 @@
     ],
     "require": {
         "php": "^8.3",
-        "aichadigital/larabill": "dev-main || ^0.1",
+        "aichadigital/larabill": "dev-main || ^0.4",
         "filament/filament": "^4.0",
         "illuminate/contracts": "^12.0",
         "lara-zeus/spatie-translatable": "^1.0",
