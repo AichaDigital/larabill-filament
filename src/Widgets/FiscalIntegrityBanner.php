@@ -37,6 +37,8 @@ class FiscalIntegrityBanner extends Widget
 
     /**
      * The view for the widget.
+     *
+     * @phpstan-ignore-next-line
      */
     protected string $view = 'larabill-filament::widgets.fiscal-integrity-banner';
 
