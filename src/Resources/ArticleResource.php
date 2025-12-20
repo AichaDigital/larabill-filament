@@ -12,6 +12,7 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -24,6 +25,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 
 /**
  * ArticleResource
@@ -33,6 +35,8 @@ use Filament\Tables\Table;
  */
 class ArticleResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = Article::class;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cube';
@@ -202,6 +206,7 @@ class ArticleResource extends Resource
                     ->relationship('taxGroup', 'name'),
             ])
             ->recordActions([
+                ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
@@ -224,6 +229,7 @@ class ArticleResource extends Resource
         return [
             'index' => Pages\ListArticles::route('/'),
             'create' => Pages\CreateArticle::route('/create'),
+            'view' => Pages\ViewArticle::route('/{record}'),
             'edit' => Pages\EditArticle::route('/{record}/edit'),
         ];
     }

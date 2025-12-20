@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace AichaDigital\LarabillFilament\Resources\ArticleResource\Pages;
 
 use AichaDigital\LarabillFilament\Resources\ArticleResource;
-use Filament\Actions\CreateAction;
-use Filament\Resources\Pages\ListRecords;
-use LaraZeus\SpatieTranslatable\Resources\Pages\ListRecords\Concerns\Translatable;
+use Filament\Actions\EditAction;
+use Filament\Resources\Pages\ViewRecord;
+use LaraZeus\SpatieTranslatable\Resources\Pages\ViewRecord\Concerns\Translatable;
 
-class ListArticles extends ListRecords
+class ViewArticle extends ViewRecord
 {
     use Translatable;
 
@@ -18,7 +18,7 @@ class ListArticles extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            EditAction::make(),
         ];
     }
 }
