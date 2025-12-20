@@ -24,5 +24,8 @@ jobs:
       - name: Install composer dependencies
         run: composer update --prefer-stable --prefer-dist --no-interaction
 
+      - name: List installed dependencies
+        run: composer show -D
+
       - name: Run PHPStan
         run: ./vendor/bin/phpstan --error-format=github
