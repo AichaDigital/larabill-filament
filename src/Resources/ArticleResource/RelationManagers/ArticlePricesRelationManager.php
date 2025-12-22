@@ -56,6 +56,8 @@ class ArticlePricesRelationManager extends RelationManager
                     ->numeric()
                     ->prefix('€')
                     ->step(0.01)
+                    ->formatStateUsing(fn (?int $state): ?float => $state !== null ? $state / 100 : null)
+                    ->dehydrateStateUsing(fn (?float $state): ?int => $state !== null ? (int) round($state * 100) : null)
                     ->columnSpan(1),
 
                 TextInput::make('billing_days_in_advance')
@@ -95,7 +97,7 @@ class ArticlePricesRelationManager extends RelationManager
 
                 TextColumn::make('price')
                     ->label(__('larabill-filament::resources.article.relations.prices.fields.price'))
-                    ->money('EUR')
+                    ->formatStateUsing(fn (int $state): string => number_format($state / 100, 2, ',', '.').' €')
                     ->sortable(),
 
                 TextColumn::make('billing_days_in_advance')

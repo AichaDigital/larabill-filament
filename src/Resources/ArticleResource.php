@@ -106,7 +106,9 @@ class ArticleResource extends Resource
                             ->helperText(__('larabill-filament::resources.article.fields.cost_price_helper'))
                             ->numeric()
                             ->prefix('€')
-                            ->step(0.01),
+                            ->step(0.01)
+                            ->formatStateUsing(fn (?int $state): ?float => $state !== null ? $state / 100 : null)
+                            ->dehydrateStateUsing(fn (?float $state): ?int => $state !== null ? (int) round($state * 100) : null),
 
                         Select::make('tax_group_id')
                             ->label(__('larabill-filament::resources.article.fields.tax_group'))
